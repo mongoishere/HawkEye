@@ -15,6 +15,9 @@ platforms = {
 }
 
 class Ngrok(object):
+    
+    def __init__(self):
+        self.select_arrow = f'{BLUE}⮞{DEFAULT} '
 
     @property
     def installed(self):
@@ -56,7 +59,7 @@ class Ngrok(object):
         if not bool(call('mv ngrok /usr/bin/', stderr=PIPE, shell=True)): print('Successfully installed ngrok')
         else: print('Installation failed...try running with sudo?'); exit(1)
 
-        ngrok_token = str(input('Enter Ngrok Authorization Token >> '))
+        ngrok_token = str(input(f'Enter Ngrok Authorization Token {self.select_arrow}'))
 
         if not bool(call(['ngrok', 'authtoken', ngrok_token], shell=False)):
             print('Testing Authtoken...')
@@ -77,11 +80,13 @@ class Ngrok(object):
         start_cmd = f"ngrok http {port} > /dev/null &"
         call(start_cmd, shell=True)
         sleep(.5)
+        ngrok_url = Popen('curl -s -N http://127.0.0.1:4040/status | grep "https://[0-9a-z]*\.ngrok.io" -oh ', stdout=PIPE, shell=True)
+        ngrok_url = (ngrok_url.stdout.read()).decode('utf-8')[:-1]
         ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
         ngrok_pout = ngrok_proc.communicate()
         ngrok_pid = int((ngrok_pout[0].decode('utf-8')).split()[1])
         
-        yield
+        yield ngrok_url
 
         self.kill_ngrok(int(ngrok_pid))
 

