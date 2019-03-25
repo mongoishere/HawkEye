@@ -187,7 +187,34 @@ class HawkEye(object):
                         )
 
                 with open('Server/www/ip.log') as headers:
-                    data_blob = headers.read() 
+                    data_blob = headers.read().splitlines()
+                    nlines = len(data_blob)
+                    if nlines > (log_cnt['headers']*2):
+                        header_targets = {
+                            'address': None,
+                            'user_agent': None
+                        }
+
+                        for i, key in enumerate(header_targets):
+                            #import pdb; pdb.set_trace()
+                            if not(i):
+                                header_targets[key] = data_blob[-2].strip().split(' ')
+                                header_targets[key][0:3] = [' '.join(header_targets[key][0:3])]
+                                
+                            else:
+                                #print(data_blob[-1].strip())
+                                header_targets[key] = data_blob[-1].strip().split(' ')
+                                print(header_targets[key])
+                                header_targets[key][1:] = [' '.join(header_targets[key][1:])]
+                            print(f'[{BLUE}{header_targets[key][0]}{DEFAULT}]: {header_targets[key][1]}')
+                                
+                                
+                        log_cnt['headers'] += 1
+
+                        #address = data_blob[log_cnt['headers']].split(' ')
+                        #address[0:3] = [' '.join(address[0:3])]
+                        #print(address)
+                    data_blob = headers.read()
                         
 if __name__ == '__main__':
     
