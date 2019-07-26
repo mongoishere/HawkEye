@@ -151,6 +151,8 @@ class HawkEye(object):
 
         port_num = 1337
 
+        import pdb; pdb.set_trace(header='Testing Serveo Module')
+
         with self.ngrok_app.run_ngrok(port_num) as url:
 
             print(f'URL of Interest: [{BLUE}{url}{DEFAULT}]')
