@@ -72,7 +72,7 @@ class Ngrok(object):
 
 
     @contextmanager
-    def run_ngrok(self, port):
+    def run(self, port):
 
         if not isinstance(port, int):
             raise TypeError("Port must be an integer")

