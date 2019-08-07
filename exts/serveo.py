@@ -46,7 +46,7 @@ class Serveo(object):
                 else: target_pids.append(process.split(' '*5)[1].split()[0]); continue
                 target_pids.append(process.split()[1])
 
-        for pid in target_pids[:-1]:        copy_tree("WebPages/google_advanced_poll/", "Server/www/")
+        for pid in target_pids[:-1]:
 
             #import pdb; pdb.set_trace(header=f'Killing Process: {pid}')
             self.kill_serveo(pid)
