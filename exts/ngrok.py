@@ -79,9 +79,10 @@ class Ngrok(object):
 
         start_cmd = f"ngrok http {port} > /dev/null &"
         call(start_cmd, shell=True)
-        sleep(.5)
-        ngrok_url = Popen('curl -s -N http://127.0.0.1:4040/status | grep "https://[0-9a-z]*\.ngrok.io" -oh ', stdout=PIPE, shell=True)
-        ngrok_url = (ngrok_url.stdout.read()).decode('utf-8')[:-1]
+        ngrok_url = None
+        while not(ngrok_url):
+            ngrok_url = Popen('curl -s -N http://127.0.0.1:4040/status | grep "https://[0-9a-z]*\.ngrok.io" -oh ', stdout=PIPE, shell=True)
+            ngrok_url = (ngrok_url.stdout.read()).decode('utf-8')[:-1]
         ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
         ngrok_pout = ngrok_proc.communicate()
         ngrok_pid = int((ngrok_pout[0].decode('utf-8')).split()[1])
@@ -89,5 +90,3 @@ class Ngrok(object):
         yield ngrok_url
 
         self.kill_ngrok(int(ngrok_pid))
-
-        #call("")

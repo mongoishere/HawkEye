@@ -47,6 +47,5 @@ class Serveo(object):
                 target_pids.append(process.split()[1])
 
         for pid in target_pids[:-1]:
-
             #import pdb; pdb.set_trace(header=f'Killing Process: {pid}')
             self.kill_serveo(pid)
