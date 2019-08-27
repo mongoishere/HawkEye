@@ -31,11 +31,10 @@ class Ngrok(object):
     def test_ngrok(self):
 
         call('ngrok http 1337 > /dev/null &', shell=True)
-        sleep(.5)
+        sleep(2)
         ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
         ngrok_pout = ngrok_proc.communicate()
         ngrok_pid = int((ngrok_pout[0].decode('utf-8')).split()[1])
-
         ngrok_cmd = ngrok_pout[0].decode('utf-8').split()[10:13]
         ngrok_cmd = ' '.join(map(str, ngrok_cmd))
 
@@ -78,10 +77,10 @@ class Ngrok(object):
             raise TypeError("Port must be an integer")
 
         start_cmd = f"ngrok http {port} > /dev/null &"
-        call(start_cmd, shell=True)
+        ret_val = call(start_cmd, shell=True)
         ngrok_url = None
         while not(ngrok_url):
-            ngrok_url = Popen('curl -s -N http://127.0.0.1:4040/status | grep "https://[0-9a-z]*\.ngrok.io" -oh ', stdout=PIPE, shell=True)
+            ngrok_url = Popen('curl -s -N http://127.0.0.1:4040/api/tunnels | grep "https://[0-9a-z]*\.ngrok.io" -oh ', stdout=PIPE, shell=True)
             ngrok_url = (ngrok_url.stdout.read()).decode('utf-8')[:-1]
         ngrok_proc = Popen(f"ps aux | grep -i 'ngrok http'", stdout=PIPE, shell=True)
         ngrok_pout = ngrok_proc.communicate()
